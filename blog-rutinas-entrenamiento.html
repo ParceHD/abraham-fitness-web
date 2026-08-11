@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rutinas de entrenamiento · Abraham Vázquez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0b; --bg-alt:#111113; --surface:#18181b; --surface-2:#1f1f23;
+    --border:#2a2a2f; --text:#f5f5f6; --text-muted:#9a9aa4; --text-dim:#6b6b74;
+    --blue:#2f6fed; --blue-light:#5b93ff; --blue-dim:#1b3a80;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--blue);color:#fff;}
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(var(--blue),var(--blue-dim));border-radius:10px;}
+  a{color:inherit;text-decoration:none;}
+  .container{max-width:1180px;margin:0 auto;padding:0 24px;}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 0;border-bottom:1px solid var(--border);background:rgba(10,10,11,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+  nav{display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.08em;display:flex;align-items:center;gap:8px;}
+  .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);box-shadow:0 0 12px var(--blue);}
+  .nav-links{display:flex;gap:36px;font-size:.85rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+  .nav-links a{color:var(--text-muted);transition:color .25s;}
+  .nav-links a:hover{color:var(--text);}
+  .nav-cta{background:var(--blue);color:#fff;padding:10px 20px;border-radius:999px;font-size:.8rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;transition:transform .2s, box-shadow .2s;}
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(47,111,237,.4);}
+  @media (max-width:900px){.nav-links{display:none;}}
+
+  .article-wrap{max-width:740px;margin:0 auto;padding:150px 24px 100px;}
+  .back-link{display:inline-flex;align-items:center;gap:8px;color:var(--text-muted);font-size:.85rem;font-weight:600;margin-bottom:34px;transition:color .2s;}
+  .back-link:hover{color:var(--blue-light);}
+  .eyebrow{color:var(--blue-light);font-size:.78rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .eyebrow::before{content:'';width:26px;height:2px;background:var(--blue-light);}
+  h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.6rem,7vw,4.4rem);letter-spacing:.02em;line-height:1.04;}
+  .lead{color:var(--text-muted);font-size:1.12rem;margin-top:18px;line-height:1.65;}
+
+  .article-body{margin-top:48px;}
+  .article-body h2{font-family:'Bebas Neue',sans-serif;font-size:1.65rem;letter-spacing:.03em;color:var(--blue-light);margin:42px 0 14px;}
+  .article-body p{color:var(--text-muted);font-size:1.03rem;line-height:1.85;margin-bottom:18px;}
+  .article-body ul{margin:0 0 20px 22px;color:var(--text-muted);line-height:1.85;font-size:1.02rem;}
+  .article-body li{margin-bottom:6px;}
+  .article-body strong{color:var(--text);}
+
+  .pull-quote{border-left:3px solid var(--blue);padding:18px 26px;margin:36px 0;background:var(--surface);border-radius:0 14px 14px 0;font-size:1.08rem;font-style:italic;color:var(--text);}
+
+  .related{margin-top:64px;padding-top:40px;border-top:1px solid var(--border);}
+  .related-label{color:var(--text-dim);font-size:.78rem;text-transform:uppercase;letter-spacing:.14em;margin-bottom:16px;}
+  .related-links{display:flex;gap:10px;flex-wrap:wrap;}
+  .related-links a{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 18px;border-radius:999px;font-size:.82rem;font-weight:600;transition:border-color .25s, transform .25s;}
+  .related-links a:hover{border-color:var(--blue);transform:translateY(-2px);}
+
+  .cta-box{margin-top:56px;background:linear-gradient(135deg, var(--surface), var(--bg-alt));border:1px solid var(--border);border-radius:20px;padding:36px 30px;text-align:center;}
+  .cta-box p{color:var(--text-muted);margin-bottom:18px;}
+  .btn-primary{display:inline-block;background:var(--blue);color:#fff;padding:13px 26px;border-radius:12px;font-size:.85rem;font-weight:700;letter-spacing:.02em;transition:transform .2s, box-shadow .2s;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(47,111,237,.35);}
+
+  footer{padding:50px 24px 34px;text-align:center;}
+  footer p{color:var(--text-dim);font-size:.82rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav>
+      <a href="web-abraham.fitness.html" class="logo"><span class="dot"></span>ABRAHAM VÁZQUEZ</a>
+      <div class="nav-links">
+        <a href="web-abraham.fitness.html#sobre-mi">Sobre mí</a>
+        <a href="web-abraham.fitness.html#colabora">Colabora</a>
+        <a href="web-abraham.fitness.html#galeria">Galería</a>
+        <a href="web-abraham.fitness.html#contacto">Contacto</a>
+      </div>
+      <a href="web-abraham.fitness.html#contacto" class="nav-cta">Contactar</a>
+    </nav>
+  </div>
+</header>
+
+<div class="article-wrap">
+  <a href="web-abraham.fitness.html#sobre-mi" class="back-link">&larr; Volver a la web</a>
+
+  <div class="eyebrow">Blog</div>
+  <h1>Rutinas de entrenamiento: la base de todo progreso</h1>
+  <p class="lead">Antes de hablar de resultados hay que hablar de estructura. Esto es lo que significa realmente tener una rutina de entrenamiento.</p>
+
+  <div class="article-body">
+    <h2>¿Qué es una rutina de entrenamiento?</h2>
+    <p>Una rutina de entrenamiento es un plan organizado de ejercicios, series, repeticiones y descansos que se repite de forma constante a lo largo de las semanas. No es una lista de ejercicios al azar: tiene una lógica detrás — qué grupos musculares se trabajan, en qué orden, con qué frecuencia y con cuánta intensidad.</p>
+    <p>Tener una rutina, en lugar de improvisar cada día, es lo que permite medir el progreso y saber si un cambio funciona o no.</p>
+
+    <h2>Los principios que sostienen cualquier rutina</h2>
+    <ul>
+      <li><strong>Sobrecarga progresiva:</strong> aumentar poco a poco el peso, las repeticiones o la dificultad para seguir dando un estímulo al cuerpo.</li>
+      <li><strong>Constancia:</strong> los resultados vienen de repetir el proceso semana tras semana, no de una sesión puntual.</li>
+      <li><strong>Técnica:</strong> ejecutar bien el movimiento importa más que la cantidad de peso movido.</li>
+      <li><strong>Descanso:</strong> el músculo no crece durante el entrenamiento, sino en la recuperación posterior.</li>
+    </ul>
+
+    <div class="pull-quote">"El mejor entrenamiento no es el más intenso, es el que puedes mantener en el tiempo."</div>
+
+    <h2>Tipos de rutina más comunes</h2>
+    <p>Existen distintas formas de organizar el entrenamiento semanal, y cada una encaja mejor con un nivel y una disponibilidad de tiempo distintos:</p>
+    <ul>
+      <li><strong>Full body:</strong> se trabaja todo el cuerpo en cada sesión, ideal para quien entrena 2-3 días por semana.</li>
+      <li><strong>Torso-pierna:</strong> se alterna tren superior e inferior, un punto intermedio muy usado.</li>
+      <li><strong>Push-pull-legs:</strong> se divide por tipo de movimiento (empuje, tirón, pierna), habitual en quien entrena 5-6 días.</li>
+      <li><strong>Rutinas por grupo muscular:</strong> cada día se centra en una o dos zonas concretas, típico en niveles más avanzados.</li>
+    </ul>
+
+    <h2>Cómo empezar</h2>
+    <p>No existe una rutina universal perfecta: la mejor es la que se adapta a tu nivel actual, tu disponibilidad real de tiempo y tu objetivo. Lo importante al principio no es la rutina más avanzada, sino una que puedas cumplir de forma constante durante varios meses.</p>
+  </div>
+
+  <div class="cta-box">
+    <p>Sigo mis rutinas semana a semana en Instagram, con la técnica y la progresión real detrás de cada serie.</p>
+    <a href="https://www.instagram.com/abraham.fitness/" target="_blank" class="btn-primary">Ver en Instagram</a>
+  </div>
+
+  <div class="related">
+    <div class="related-label">Sigue leyendo</div>
+    <div class="related-links">
+      <a href="blog-nutricion-comidas.html">Nutrición y comidas</a>
+      <a href="blog-lifestyle.html">Lifestyle</a>
+      <a href="blog-colaboraciones-marca.html">Colaboraciones con marcas</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 Abraham Vázquez · @abraham.fitness</p>
+</footer>
+
+</body>
+</html>
