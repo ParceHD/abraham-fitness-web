@@ -91,28 +91,62 @@
 
   /* PROMO MYPROTEIN */
   .promo-myprotein{padding:120px 24px 0;position:relative;z-index:1;}
+  @keyframes promoGlow{
+    0%,100%{box-shadow:0 24px 60px rgba(0,0,0,.5), 0 0 0 rgba(47,111,237,0);}
+    50%{box-shadow:0 24px 60px rgba(0,0,0,.5), 0 0 55px rgba(47,111,237,.55);}
+  }
   .promo-card{
     max-width:1000px;margin:0 auto;
     background:linear-gradient(135deg, var(--surface), var(--bg-alt));
-    border:1px solid var(--border);border-radius:26px;
+    border:1px solid rgba(91,147,255,.4);border-radius:26px;
     padding:34px;display:grid;grid-template-columns:1.2fr .8fr;gap:34px;align-items:center;
-    box-shadow:0 24px 60px rgba(0,0,0,.5);
+    animation:promoGlow 2.6s ease-in-out infinite;
+    position:relative;overflow:hidden;
   }
+  .promo-card::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(circle at 15% -10%, rgba(91,147,255,.22), transparent 55%);
+  }
+  @keyframes badgePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
   .promo-badge{
-    display:inline-block;background:var(--blue-dim);color:var(--blue-light);
-    font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
-    padding:6px 14px;border-radius:999px;margin-bottom:14px;
+    display:inline-flex;align-items:center;gap:6px;
+    background:linear-gradient(135deg, var(--blue), var(--blue-light));color:#fff;
+    font-size:.74rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+    padding:7px 16px;border-radius:999px;margin-bottom:16px;
+    box-shadow:0 0 20px rgba(47,111,237,.6);
+    animation:badgePulse 1.5s ease-in-out infinite;
   }
-  .promo-left h3{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.02em;margin-bottom:8px;}
-  .promo-left p{color:var(--text-muted);font-size:.95rem;margin-bottom:20px;}
+  .promo-left h3{
+    font-family:'Bebas Neue',sans-serif;font-size:clamp(2.1rem,4.2vw,3.1rem);letter-spacing:.02em;
+    margin-bottom:10px;line-height:1.02;
+    background:linear-gradient(135deg, #fff, var(--blue-light) 75%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 40px rgba(91,147,255,.25);
+  }
+  .promo-left p{color:var(--text-muted);font-size:1rem;margin-bottom:22px;}
   .promo-left p b{color:var(--blue-light);}
-  .countdown{display:flex;gap:12px;margin-bottom:24px;}
-  .cd-unit{
-    background:var(--bg);border:1px solid var(--border);border-radius:12px;
-    padding:10px 14px;text-align:center;min-width:62px;
+  .countdown{display:flex;align-items:flex-start;gap:10px;margin-bottom:26px;}
+  @keyframes numGlow{
+    0%,100%{text-shadow:0 0 14px rgba(91,147,255,.55);}
+    50%{text-shadow:0 0 26px rgba(91,147,255,.95);}
   }
-  .cd-num{display:block;font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--blue-light);letter-spacing:.02em;}
-  .cd-label{display:block;font-size:.62rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+  .cd-unit{
+    background:linear-gradient(180deg, var(--surface-2), var(--bg));
+    border:1px solid rgba(91,147,255,.4);border-radius:14px;
+    padding:14px 16px;text-align:center;min-width:76px;
+    box-shadow:inset 0 0 16px rgba(47,111,237,.18);
+  }
+  .cd-num{
+    display:block;font-family:'Bebas Neue',sans-serif;font-size:2.6rem;line-height:1;
+    color:var(--blue-light);letter-spacing:.02em;
+    animation:numGlow 1s ease-in-out infinite;
+  }
+  .cd-label{display:block;font-size:.64rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin-top:6px;}
+  @keyframes colonBlink{0%,49%{opacity:1;}50%,100%{opacity:.15;}}
+  .cd-colon{
+    font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--blue-light);
+    align-self:center;margin-top:-10px;animation:colonBlink 1s steps(1) infinite;
+  }
   .promo-buttons{display:flex;gap:10px;flex-wrap:wrap;}
   .promo-video{display:flex;justify-content:center;}
   .promo-video-link{
@@ -454,13 +488,16 @@
   <div class="container">
     <div class="promo-card reveal">
       <div class="promo-left">
-        <span class="promo-badge">MyProtein × Abraham Vázquez</span>
-        <h3>Oferta especial — termina pronto</h3>
-        <p>Código <b>ABRAHAMFITNESS</b> en mi último vídeo con MyProtein.</p>
+        <span class="promo-badge">🔥 MyProtein × Abraham Vázquez</span>
+        <h3>¡ÚLTIMAS HORAS DE OFERTA!</h3>
+        <p>No te quedes fuera — código <b>ABRAHAMFITNESS</b> antes de que se acabe.</p>
         <div class="countdown" id="countdown">
           <div class="cd-unit"><span class="cd-num" id="cd-days">--</span><span class="cd-label">Días</span></div>
+          <span class="cd-colon">:</span>
           <div class="cd-unit"><span class="cd-num" id="cd-hours">--</span><span class="cd-label">Horas</span></div>
+          <span class="cd-colon">:</span>
           <div class="cd-unit"><span class="cd-num" id="cd-mins">--</span><span class="cd-label">Min</span></div>
+          <span class="cd-colon">:</span>
           <div class="cd-unit"><span class="cd-num" id="cd-secs">--</span><span class="cd-label">Seg</span></div>
         </div>
         <div class="promo-buttons">
