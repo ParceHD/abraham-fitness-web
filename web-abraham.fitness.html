@@ -81,6 +81,31 @@
     content:'';position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--blue);transition:width .25s;
   }
   .nav-links a:hover::after{width:100%;}
+  .nav-dropdown{position:relative;}
+  .nav-dropdown-btn{
+    background:none;border:none;color:var(--text-muted);
+    font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+    cursor:pointer;transition:color .25s;display:flex;align-items:center;gap:5px;padding:0;
+  }
+  .nav-dropdown-btn:hover{color:var(--text);}
+  .nav-dropdown-btn .caret{font-size:.7rem;transition:transform .2s;}
+  .nav-dropdown.open .nav-dropdown-btn .caret{transform:rotate(180deg);}
+  .nav-dropdown-menu{
+    position:absolute;top:calc(100% + 18px);left:50%;transform:translateX(-50%);
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:8px;min-width:150px;
+    display:flex;flex-direction:column;gap:2px;
+    opacity:0;visibility:hidden;transform:translate(-50%,6px);
+    transition:opacity .2s, transform .2s, visibility .2s;
+    box-shadow:0 16px 40px rgba(0,0,0,.5);
+  }
+  .nav-dropdown.open .nav-dropdown-menu{opacity:1;visibility:visible;transform:translate(-50%,0);}
+  .nav-dropdown-menu a{
+    display:block;padding:9px 12px;border-radius:8px;font-size:.8rem;
+    color:var(--text-muted);text-transform:none;letter-spacing:normal;font-weight:600;
+    transition:background .2s, color .2s;
+  }
+  .nav-dropdown-menu a:hover{background:var(--surface-2);color:var(--text);}
   .nav-cta{
     background:var(--blue);color:#fff;padding:10px 20px;border-radius:999px;
     font-size:.8rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
@@ -654,10 +679,15 @@
         <a href="#sobre-mi">Sobre mí</a>
         <a href="#colabora">Colabora</a>
         <a href="#galeria">Galería</a>
-        <a href="#videos">TikTok</a>
-        <a href="#reserva">Reserva</a>
-        <a href="#foro">Foro</a>
-        <a href="#contacto">Contacto</a>
+        <div class="nav-dropdown">
+          <button type="button" class="nav-dropdown-btn" id="nav-more-btn">Más <span class="caret">▾</span></button>
+          <div class="nav-dropdown-menu" id="nav-more-menu">
+            <a href="#videos">TikTok</a>
+            <a href="#reserva">Reserva</a>
+            <a href="#foro">Foro</a>
+            <a href="#contacto">Contacto</a>
+          </div>
+        </div>
       </div>
       <div class="nav-actions">
         <a href="#seguir" id="nav-follow-btn" class="nav-follow-btn">
@@ -1089,6 +1119,22 @@
   window.addEventListener('scroll', () => {
     header.classList.toggle('scrolled', window.scrollY > 40);
   });
+
+  // Dropdown "Más" del menú
+  const navMoreBtn = document.getElementById('nav-more-btn');
+  const navDropdown = navMoreBtn ? navMoreBtn.closest('.nav-dropdown') : null;
+  if (navMoreBtn && navDropdown) {
+    navMoreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navDropdown.classList.toggle('open');
+    });
+    document.addEventListener('click', (e) => {
+      if (!navDropdown.contains(e.target)) navDropdown.classList.remove('open');
+    });
+    navDropdown.querySelectorAll('.nav-dropdown-menu a').forEach((a) => {
+      a.addEventListener('click', () => navDropdown.classList.remove('open'));
+    });
+  }
 
   // Reveal + stagger observer
   const io = new IntersectionObserver((entries) => {
