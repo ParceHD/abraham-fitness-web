@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan de Alimentación · Abraham Vázquez</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0b; --bg-alt:#111113; --surface:#18181b; --surface-2:#1f1f23;
+    --border:#2a2a2f; --text:#f5f5f6; --text-muted:#9a9aa4; --text-dim:#6b6b74;
+    --blue:#2f6fed; --blue-light:#5b93ff; --blue-dim:#1b3a80;
+    --green:#22c55e; --orange:#f59e0b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+  .container{max-width:1320px;margin:0 auto;padding:0 24px;}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;border-bottom:1px solid var(--border);background:rgba(10,10,11,.75);backdrop-filter:blur(16px);}
+  nav{display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.08em;display:flex;align-items:center;gap:8px;}
+  .logo .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green);}
+  .back-link{color:var(--text-muted);font-size:.85rem;font-weight:600;transition:color .2s;}
+  .back-link:hover{color:var(--green);}
+
+  .plan-wrap{padding:0 0 100px;}
+
+  .hero-banner{
+    position:relative;height:280px;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;background:linear-gradient(135deg,#0d1f14,var(--bg-alt));
+  }
+  .hero-banner::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 20% 20%, rgba(34,197,94,.18), transparent 55%),
+               radial-gradient(circle at 85% 70%, rgba(34,197,94,.12), transparent 50%);
+  }
+  .hero-banner-content{position:relative;z-index:1;text-align:center;padding:0 24px;}
+  .hero-banner-content .eyebrow{
+    color:var(--green);font-size:.78rem;font-weight:700;letter-spacing:.14em;
+    text-transform:uppercase;margin-bottom:12px;
+  }
+  .hero-banner-content h1{
+    font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,5.5vw,3.6rem);letter-spacing:.02em;line-height:1.02;
+    background:linear-gradient(135deg,#fff,var(--green) 75%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-banner-content p{color:var(--text-muted);margin-top:10px;font-size:.95rem;font-weight:600;letter-spacing:.03em;}
+
+  .plan-badges{
+    display:flex;justify-content:center;gap:12px;flex-wrap:wrap;
+    max-width:1100px;margin:36px auto 44px;padding:0 24px;
+  }
+  .plan-badge{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--border);
+    padding:12px 18px;border-radius:14px;font-size:.78rem;color:var(--text-muted);
+    min-width:170px;
+  }
+  .plan-badge .ic{font-size:1.1rem;}
+  .plan-badge b{display:block;color:var(--text);font-size:.82rem;margin-bottom:1px;}
+
+  .matrix-scroll{overflow-x:auto;padding:0 24px;}
+  .meal-matrix{
+    display:grid;grid-template-columns:150px repeat(5,1fr);gap:12px;
+    max-width:1320px;margin:0 auto;min-width:1100px;
+  }
+
+  .day-head-cell{
+    background:linear-gradient(135deg, var(--green), #16a34a);
+    border-radius:12px;padding:12px;text-align:center;
+    font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.06em;color:#08170c;
+    align-self:end;
+  }
+  .corner-cell{}
+
+  .meal-label{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:16px 14px;display:flex;flex-direction:column;justify-content:center;
+  }
+  .meal-label .meal-icon{font-size:1.3rem;margin-bottom:6px;}
+  .meal-label .meal-title{font-family:'Bebas Neue',sans-serif;font-size:1.05rem;letter-spacing:.04em;color:var(--text);}
+  .meal-label .meal-sub{font-size:.68rem;color:var(--text-muted);margin-top:4px;line-height:1.4;}
+  .meal-label .meal-time{font-size:.68rem;color:var(--green);font-weight:700;margin-top:8px;}
+
+  .meal-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    padding:14px;display:flex;flex-direction:column;
+  }
+  .dish-visual{
+    width:100%;aspect-ratio:4/3;border-radius:12px;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:center;gap:4px;
+    font-size:2.4rem;
+    background:radial-gradient(circle at 30% 30%, rgba(245,158,11,.22), transparent 60%),
+               linear-gradient(135deg, var(--surface-2), var(--bg-alt));
+    border:1px solid var(--border);
+  }
+  .dish-name{font-weight:800;font-size:.85rem;color:var(--text);margin-bottom:8px;line-height:1.2;}
+  .dish-ingredients{list-style:none;margin-bottom:12px;flex:1;}
+  .dish-ingredients li{
+    font-size:.72rem;color:var(--text-muted);line-height:1.55;padding-left:12px;position:relative;
+  }
+  .dish-ingredients li::before{content:'•';position:absolute;left:0;color:var(--green);}
+  .dish-macros{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .macro-pill{
+    background:var(--bg);border:1px solid var(--border);border-radius:8px;
+    padding:6px 8px;font-size:.66rem;color:var(--text-muted);text-align:center;
+  }
+  .macro-pill b{display:block;color:var(--text);font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.02em;}
+
+  .info-section{max-width:1320px;margin:56px auto 0;padding:0 24px;}
+  .info-grid{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:18px;}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px 22px;}
+  .info-card h3{
+    font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.03em;color:var(--green);margin-bottom:16px;
+  }
+  .check-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+  .check-list li{font-size:.82rem;color:var(--text-muted);line-height:1.5;padding-left:22px;position:relative;}
+  .check-list li::before{content:'✔';position:absolute;left:0;top:0;color:var(--green);font-weight:800;}
+
+  .alt-group{margin-bottom:16px;}
+  .alt-group:last-child{margin-bottom:0;}
+  .alt-group h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text);margin-bottom:8px;}
+  .alt-group p{font-size:.78rem;color:var(--text-muted);line-height:1.6;}
+
+  .macro-chart-wrap{display:flex;flex-direction:column;align-items:center;}
+  .donut{
+    width:150px;height:150px;border-radius:50%;
+    background:conic-gradient(var(--green) 0% 42.5%, var(--blue) 42.5% 70%, var(--orange) 70% 100%);
+    display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  }
+  .donut-hole{width:92px;height:92px;border-radius:50%;background:var(--surface);}
+  .macro-legend{display:flex;flex-direction:column;gap:10px;width:100%;}
+  .macro-legend-item{display:flex;align-items:center;gap:10px;font-size:.76rem;color:var(--text-muted);}
+  .legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+  .macro-legend-item b{color:var(--text);}
+
+  footer.plan-footer-note{
+    max-width:1320px;margin:36px auto 0;padding:18px 24px;
+    background:var(--surface);border:1px solid var(--border);border-radius:14px;
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+  }
+  .plan-footer-note p{font-size:.76rem;color:var(--text-dim);max-width:640px;}
+  .legend-icons{display:flex;gap:16px;font-size:.72rem;color:var(--text-muted);}
+
+  @media (max-width:1100px){
+    .info-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .plan-wrap{padding-top:0;}
+    header{padding:12px 0;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <nav>
+      <a href="web-abraham.fitness.html" class="logo"><span class="dot"></span>ABRAHAM VÁZQUEZ</a>
+      <a href="web-abraham.fitness.html#sobre-mi" class="back-link">&larr; Volver a la web</a>
+    </nav>
+  </div>
+</header>
+
+<div class="plan-wrap">
+
+  <div class="hero-banner">
+    <div class="hero-banner-content">
+      <div class="eyebrow">Nutrición</div>
+      <h1>PLAN DE ALIMENTACIÓN EQUILIBRADA</h1>
+      <p>Real, saludable y sostenible</p>
+    </div>
+  </div>
+
+  <div class="plan-badges">
+    <div class="plan-badge"><span class="ic">🎯</span><div><b>Objetivo</b>Rendimiento, salud y composición corporal</div></div>
+    <div class="plan-badge"><span class="ic">💪</span><div><b>Perfil</b>Persona activa, entrenamiento 5 días/semana</div></div>
+    <div class="plan-badge"><span class="ic">🔥</span><div><b>Calorías orientativas</b>2.200 - 2.600 kcal/día</div></div>
+    <div class="plan-badge"><span class="ic">💧</span><div><b>Hidratación</b>2-3 litros de agua al día</div></div>
+  </div>
+
+  <div class="matrix-scroll">
+    <div class="meal-matrix">
+
+      <div class="corner-cell"></div>
+      <div class="day-head-cell">LUNES</div>
+      <div class="day-head-cell">MARTES</div>
+      <div class="day-head-cell">MIÉRCOLES</div>
+      <div class="day-head-cell">JUEVES</div>
+      <div class="day-head-cell">VIERNES</div>
+
+      <!-- DESAYUNO -->
+      <div class="meal-label">
+        <span class="meal-icon">☀️</span>
+        <div class="meal-title">DESAYUNO</div>
+        <div class="meal-sub">Energía para empezar el día</div>
+        <div class="meal-time">🕐 7:00 - 9:00</div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥣🍌🫐</div>
+        <div class="dish-name">Avena con fruta</div>
+        <ul class="dish-ingredients">
+          <li>60 g avena</li><li>250 ml bebida vegetal o leche semidesnatada</li><li>1 plátano</li><li>Frutos rojos</li><li>1 cda crema de cacahuete</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>560</b>kcal</div><div class="macro-pill"><b>18g</b>Proteína</div>
+          <div class="macro-pill"><b>78g</b>Carbos</div><div class="macro-pill"><b>16g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍞🥑🍳</div>
+        <div class="dish-name">Tostada completa</div>
+        <ul class="dish-ingredients">
+          <li>2 rebanadas pan integral</li><li>2 huevos revueltos</li><li>½ aguacate</li><li>Tomate natural</li><li>Aceite de oliva virgen</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>520</b>kcal</div><div class="macro-pill"><b>25g</b>Proteína</div>
+          <div class="macro-pill"><b>53g</b>Carbos</div><div class="macro-pill"><b>22g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥣🍇</div>
+        <div class="dish-name">Yogur y cereales</div>
+        <ul class="dish-ingredients">
+          <li>250 g yogur griego natural</li><li>40 g granola de avena</li><li>1 plátano</li><li>1 cda semillas de chía</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>500</b>kcal</div><div class="macro-pill"><b>28g</b>Proteína</div>
+          <div class="macro-pill"><b>62g</b>Carbos</div><div class="macro-pill"><b>15g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥤🍌</div>
+        <div class="dish-name">Batido proteico</div>
+        <ul class="dish-ingredients">
+          <li>250 ml leche o bebida vegetal</li><li>1 medida de proteína</li><li>1 plátano</li><li>30 g avena</li><li>Mantequilla de cacahuete</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>540</b>kcal</div><div class="macro-pill"><b>32g</b>Proteína</div>
+          <div class="macro-pill"><b>63g</b>Carbos</div><div class="macro-pill"><b>14g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥑🍞🍳</div>
+        <div class="dish-name">Tostada de aguacate</div>
+        <ul class="dish-ingredients">
+          <li>2 rebanadas pan integral</li><li>½ aguacate</li><li>1 huevo poché</li><li>Tomate cherry</li><li>Aceite de oliva virgen</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>510</b>kcal</div><div class="macro-pill"><b>20g</b>Proteína</div>
+          <div class="macro-pill"><b>45g</b>Carbos</div><div class="macro-pill"><b>24g</b>Grasas</div>
+        </div>
+      </div>
+
+      <!-- COMIDA -->
+      <div class="meal-label">
+        <span class="meal-icon">🍽️</span>
+        <div class="meal-title">COMIDA</div>
+        <div class="meal-sub">Plato principal del día</div>
+        <div class="meal-time">🕐 13:30 - 15:00</div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍗🍚🥦</div>
+        <div class="dish-name">Pollo, arroz y verduras</div>
+        <ul class="dish-ingredients">
+          <li>150 g pechuga de pollo</li><li>80 g arroz integral (peso en crudo)</li><li>Verduras al vapor</li><li>1 cda aceite de oliva</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>670</b>kcal</div><div class="macro-pill"><b>45g</b>Proteína</div>
+          <div class="macro-pill"><b>70g</b>Carbos</div><div class="macro-pill"><b>20g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🐟🍠</div>
+        <div class="dish-name">Salmón al horno</div>
+        <ul class="dish-ingredients">
+          <li>150 g salmón</li><li>200 g boniato al horno</li><li>Ensalada variada</li><li>1 cda aceite de oliva</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>700</b>kcal</div><div class="macro-pill"><b>40g</b>Proteína</div>
+          <div class="macro-pill"><b>58g</b>Carbos</div><div class="macro-pill"><b>28g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥩🍚</div>
+        <div class="dish-name">Ternera con quinoa</div>
+        <ul class="dish-ingredients">
+          <li>150 g ternera magra</li><li>80 g quinoa (peso en crudo)</li><li>Verduras salteadas</li><li>1 cda aceite de oliva</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>680</b>kcal</div><div class="macro-pill"><b>42g</b>Proteína</div>
+          <div class="macro-pill"><b>60g</b>Carbos</div><div class="macro-pill"><b>20g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍝🐟</div>
+        <div class="dish-name">Pasta integral con atún</div>
+        <ul class="dish-ingredients">
+          <li>80 g pasta integral (peso en crudo)</li><li>1 lata de atún natural</li><li>Salsa de tomate natural</li><li>Verduras al gusto</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>650</b>kcal</div><div class="macro-pill"><b>38g</b>Proteína</div>
+          <div class="macro-pill"><b>78g</b>Carbos</div><div class="macro-pill"><b>16g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🐟🥔</div>
+        <div class="dish-name">Merluza con patata</div>
+        <ul class="dish-ingredients">
+          <li>150 g merluza o pescado blanco</li><li>200 g patata cocida</li><li>Ensalada variada</li><li>1 cda aceite de oliva</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>620</b>kcal</div><div class="macro-pill"><b>38g</b>Proteína</div>
+          <div class="macro-pill"><b>62g</b>Carbos</div><div class="macro-pill"><b>16g</b>Grasas</div>
+        </div>
+      </div>
+
+      <!-- MERIENDA -->
+      <div class="meal-label">
+        <span class="meal-icon">🍏</span>
+        <div class="meal-title">MERIENDA</div>
+        <div class="meal-sub">Recarga de energía y saciedad</div>
+        <div class="meal-time">🕐 17:00 - 18:00</div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥛🍎</div>
+        <div class="dish-name">Queso batido con fruta</div>
+        <ul class="dish-ingredients">
+          <li>200 g queso batido 0%</li><li>1 manzana</li><li>15 g nueces</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>320</b>kcal</div><div class="macro-pill"><b>22g</b>Proteína</div>
+          <div class="macro-pill"><b>30g</b>Carbos</div><div class="macro-pill"><b>12g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍌🥜</div>
+        <div class="dish-name">Plátano y almendras</div>
+        <ul class="dish-ingredients">
+          <li>1 plátano</li><li>20 g almendras</li><li>1 yogur natural</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>300</b>kcal</div><div class="macro-pill"><b>10g</b>Proteína</div>
+          <div class="macro-pill"><b>35g</b>Carbos</div><div class="macro-pill"><b>12g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍘🥜</div>
+        <div class="dish-name">Tortitas de arroz</div>
+        <ul class="dish-ingredients">
+          <li>2 tortitas de arroz</li><li>1 cda crema de cacahuete</li><li>1 plátano</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>310</b>kcal</div><div class="macro-pill"><b>9g</b>Proteína</div>
+          <div class="macro-pill"><b>42g</b>Carbos</div><div class="macro-pill"><b>11g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥤</div>
+        <div class="dish-name">Batido recuperador</div>
+        <ul class="dish-ingredients">
+          <li>1 medida de proteína</li><li>1 plátano</li><li>250 ml leche o bebida vegetal</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>280</b>kcal</div><div class="macro-pill"><b>24g</b>Proteína</div>
+          <div class="macro-pill"><b>28g</b>Carbos</div><div class="macro-pill"><b>6g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍎🥜</div>
+        <div class="dish-name">Fruta y frutos secos</div>
+        <ul class="dish-ingredients">
+          <li>1 pieza de fruta</li><li>20 g nueces</li><li>1 yogur natural</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>300</b>kcal</div><div class="macro-pill"><b>9g</b>Proteína</div>
+          <div class="macro-pill"><b>34g</b>Carbos</div><div class="macro-pill"><b>13g</b>Grasas</div>
+        </div>
+      </div>
+
+      <!-- CENA -->
+      <div class="meal-label">
+        <span class="meal-icon">🌙</span>
+        <div class="meal-title">CENA</div>
+        <div class="meal-sub">Ligera y nutritiva para recuperar</div>
+        <div class="meal-time">🕐 20:30 - 22:00</div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍳🥗</div>
+        <div class="dish-name">Tortilla con ensalada</div>
+        <ul class="dish-ingredients">
+          <li>2 huevos + 2 claras</li><li>Ensalada variada</li><li>1 cda aceite de oliva</li><li>1 rebanada de pan integral</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>480</b>kcal</div><div class="macro-pill"><b>30g</b>Proteína</div>
+          <div class="macro-pill"><b>30g</b>Carbos</div><div class="macro-pill"><b>22g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥘</div>
+        <div class="dish-name">Lentejas estofadas</div>
+        <ul class="dish-ingredients">
+          <li>150 g lentejas cocidas</li><li>Verduras estofadas</li><li>1 cda aceite de oliva</li><li>1 yogur natural</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>520</b>kcal</div><div class="macro-pill"><b>24g</b>Proteína</div>
+          <div class="macro-pill"><b>65g</b>Carbos</div><div class="macro-pill"><b>14g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍗🥦</div>
+        <div class="dish-name">Pollo y verduras</div>
+        <ul class="dish-ingredients">
+          <li>150 g pechuga de pollo</li><li>Verduras a la plancha</li><li>1 cda aceite de oliva</li><li>½ aguacate</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>450</b>kcal</div><div class="macro-pill"><b>35g</b>Proteína</div>
+          <div class="macro-pill"><b>18g</b>Carbos</div><div class="macro-pill"><b>28g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🥗🐟</div>
+        <div class="dish-name">Ensalada completa</div>
+        <ul class="dish-ingredients">
+          <li>1 lata de atún natural</li><li>Ensalada variada</li><li>½ aguacate</li><li>1 cda aceite de oliva</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>460</b>kcal</div><div class="macro-pill"><b>30g</b>Proteína</div>
+          <div class="macro-pill"><b>20g</b>Carbos</div><div class="macro-pill"><b>26g</b>Grasas</div>
+        </div>
+      </div>
+      <div class="meal-card">
+        <div class="dish-visual">🍲</div>
+        <div class="dish-name">Crema de verduras</div>
+        <ul class="dish-ingredients">
+          <li>Crema de verduras casera</li><li>2 huevos cocidos</li><li>1 rebanada de pan integral</li>
+        </ul>
+        <div class="dish-macros">
+          <div class="macro-pill"><b>430</b>kcal</div><div class="macro-pill"><b>20g</b>Proteína</div>
+          <div class="macro-pill"><b>38g</b>Carbos</div><div class="macro-pill"><b>15g</b>Grasas</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="info-section">
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Pautas generales</h3>
+        <ul class="check-list">
+          <li>Prioriza alimentos frescos y poco procesados.</li>
+          <li>Incluye proteína en cada comida principal.</li>
+          <li>Ajusta las cantidades a tu gasto calórico y objetivo.</li>
+          <li>Evita azúcares añadidos y ultraprocesados.</li>
+          <li>Duerme 7-9 horas y gestiona el estrés.</li>
+        </ul>
+      </div>
+
+      <div class="info-card">
+        <h3>Alternativas saludables</h3>
+        <div class="alt-group">
+          <h4>Proteínas</h4>
+          <p>Pavo, pollo, ternera magra · Pescados blancos y azules · Huevos, claras · Legumbres · Tofu, tempeh</p>
+        </div>
+        <div class="alt-group">
+          <h4>Carbohidratos</h4>
+          <p>Arroz integral, quinoa · Pasta integral · Patata, boniato · Avena · Legumbres</p>
+        </div>
+        <div class="alt-group">
+          <h4>Grasas saludables</h4>
+          <p>Aguacate · Frutos secos · Aceite de oliva virgen · Semillas · Pescado azul</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h3>Distribución orientativa de macros</h3>
+        <div class="macro-chart-wrap">
+          <div class="donut"><div class="donut-hole"></div></div>
+          <div class="macro-legend">
+            <div class="macro-legend-item"><span class="legend-dot" style="background:var(--green);"></span><b>40-45%</b>&nbsp;Carbohidratos complejos — energía y rendimiento</div>
+            <div class="macro-legend-item"><span class="legend-dot" style="background:var(--blue);"></span><b>25-30%</b>&nbsp;Proteínas — desarrollo y recuperación muscular</div>
+            <div class="macro-legend-item"><span class="legend-dot" style="background:var(--orange);"></span><b>25-30%</b>&nbsp;Grasas saludables — salud hormonal y saciedad</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="plan-footer-note">
+    <p>ℹ️ Ejemplo orientativo para una persona activa. Ajusta calorías y cantidades según tu objetivo (pérdida de grasa, mantenimiento o ganancia muscular). Consulta con un profesional para adaptarlo a tus necesidades.</p>
+    <div class="legend-icons">
+      <span>🔥 Calorías</span>
+      <span>💪 Proteína</span>
+      <span>🌾 Carbohidratos</span>
+      <span>💧 Grasas</span>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>
