@@ -301,6 +301,38 @@
   }
   .section-sub{color:var(--text-muted);max-width:560px;font-size:1rem;line-height:1.6;}
 
+  /* SEGUIR CON GOOGLE */
+  .follow-section{padding:0 24px 100px;position:relative;z-index:1;}
+  .follow-card{
+    max-width:520px;margin:0 auto;text-align:center;
+    background:linear-gradient(135deg, var(--surface), var(--bg-alt));
+    border:1px solid var(--border);border-radius:24px;
+    padding:40px 34px;
+  }
+  .follow-icon{font-size:2rem;margin-bottom:10px;}
+  .follow-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.02em;margin-bottom:10px;}
+  .follow-card p{color:var(--text-muted);font-size:.92rem;line-height:1.6;margin-bottom:22px;}
+  .btn-google{
+    display:inline-flex;align-items:center;gap:10px;
+    background:#fff;color:#1f1f1f;border:none;
+    padding:13px 26px;border-radius:12px;font-size:.88rem;font-weight:700;
+    cursor:pointer;transition:transform .2s, box-shadow .2s;
+    font-family:'Inter',sans-serif;
+  }
+  .btn-google:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(255,255,255,.15);}
+  .btn-google svg{width:20px;height:20px;}
+  .consent-text{color:var(--text-dim);font-size:.74rem;margin-top:16px;margin-bottom:0;line-height:1.5;}
+  .follow-user{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px;}
+  .follow-user img{width:40px;height:40px;border-radius:50%;border:2px solid var(--blue-light);}
+  .follow-user span{font-weight:700;font-size:.95rem;}
+  .follow-success{color:var(--blue-light);font-weight:700;font-size:.9rem;margin-bottom:18px;}
+  .btn-signout{
+    background:transparent;border:1px solid var(--border);color:var(--text-muted);
+    padding:9px 18px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;
+    font-family:'Inter',sans-serif;transition:border-color .2s, color .2s;
+  }
+  .btn-signout:hover{border-color:var(--blue);color:var(--text);}
+
   /* SOBRE MI */
   .about{padding:130px 0 100px;position:relative;z-index:1;}
   .about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;margin-top:56px;}
@@ -560,6 +592,34 @@
   </div>
 
   <div class="scroll-cue"><span></span></div>
+</section>
+
+<!-- SEGUIR CON GOOGLE -->
+<section class="follow-section" id="seguir">
+  <div class="container">
+    <div class="follow-card reveal">
+      <div class="follow-icon">🔔</div>
+
+      <div id="follow-signed-out">
+        <h3>No te pierdas nada</h3>
+        <p>Sigue la web con tu cuenta de Google y entérate de nuevos vídeos, rutinas y colaboraciones.</p>
+        <button id="google-signin-btn" class="btn-google" type="button">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.09A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.26A12 12 0 0 0 0 12c0 1.94.46 3.77 1.26 5.37l4.01-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.26 6.63l4.01 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+          Seguir con Google
+        </button>
+        <p class="consent-text">Al seguir, aceptas que guardemos tu email para enviarte novedades. Puedes darte de baja cuando quieras.</p>
+      </div>
+
+      <div id="follow-signed-in" style="display:none;">
+        <div class="follow-user">
+          <img id="follow-user-photo" src="" alt="">
+          <span id="follow-user-name"></span>
+        </div>
+        <p class="follow-success">✓ Ya sigues a Abraham Vázquez</p>
+        <button id="google-signout-btn" class="btn-signout" type="button">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- SOBRE MI -->
@@ -884,6 +944,67 @@
 </script>
 
 <script async src="https://www.tiktok.com/embed.js"></script>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
+  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBZ8_CjmlYQF34djxJocuQEYJvinPspLmY",
+    authDomain: "abraham-fitness-web.firebaseapp.com",
+    projectId: "abraham-fitness-web",
+    storageBucket: "abraham-fitness-web.firebasestorage.app",
+    messagingSenderId: "528500793485",
+    appId: "1:528500793485:web:435544fa17af65d64cc2c4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  const signInBtn = document.getElementById('google-signin-btn');
+  const signOutBtn = document.getElementById('google-signout-btn');
+  const outView = document.getElementById('follow-signed-out');
+  const inView = document.getElementById('follow-signed-in');
+  const userPhoto = document.getElementById('follow-user-photo');
+  const userName = document.getElementById('follow-user-name');
+
+  signInBtn?.addEventListener('click', async () => {
+    signInBtn.disabled = true;
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      await setDoc(doc(db, 'followers', user.uid), {
+        email: user.email,
+        name: user.displayName,
+        photo: user.photoURL,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+    } catch (err) {
+      console.error(err);
+      alert('No se pudo iniciar sesión. Inténtalo de nuevo.');
+    } finally {
+      signInBtn.disabled = false;
+    }
+  });
+
+  signOutBtn?.addEventListener('click', () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    if (!outView || !inView) return;
+    if (user) {
+      outView.style.display = 'none';
+      inView.style.display = 'block';
+      if (userPhoto) userPhoto.src = user.photoURL || '';
+      if (userName) userName.textContent = user.displayName || user.email;
+    } else {
+      outView.style.display = 'block';
+      inView.style.display = 'none';
+    }
+  });
+</script>
 
 </body>
 </html>
