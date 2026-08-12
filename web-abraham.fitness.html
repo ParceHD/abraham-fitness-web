@@ -87,6 +87,22 @@
     transition:transform .2s, box-shadow .2s;
   }
   .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(47,111,237,.4);}
+  .nav-actions{display:flex;align-items:center;gap:10px;}
+  @keyframes liveDotPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(1.35);}}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#ff3b3b;box-shadow:0 0 8px #ff3b3b;flex-shrink:0;animation:liveDotPulse 1.4s ease-in-out infinite;}
+  .nav-follow-btn{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+    padding:9px 16px;border-radius:999px;font-size:.78rem;font-weight:700;
+    transition:border-color .2s, transform .2s, background .2s;
+  }
+  .nav-follow-btn:hover{border-color:var(--blue);transform:translateY(-2px);}
+  .nav-follow-btn.is-following{background:var(--blue-dim);border-color:var(--blue);color:var(--blue-light);}
+  #nav-follower-count{color:var(--blue-light);font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.02em;transition:transform .2s;}
+  #nav-follower-count.bump{transform:scale(1.3);}
+  @media (max-width:520px){
+    #nav-follow-label{display:none;}
+  }
   .burger{display:none;}
 
   /* PROMO MYPROTEIN */
@@ -310,6 +326,22 @@
     padding:40px 34px;
   }
   .follow-icon{font-size:2rem;margin-bottom:10px;}
+  .epic-counter{margin-bottom:26px;}
+  @keyframes epicGlow{
+    0%,100%{text-shadow:0 0 20px rgba(91,147,255,.5);}
+    50%{text-shadow:0 0 42px rgba(91,147,255,.95);}
+  }
+  .epic-counter-num{
+    font-family:'Bebas Neue',sans-serif;font-size:3.6rem;line-height:1;
+    color:var(--blue-light);letter-spacing:.02em;display:inline-block;
+    animation:epicGlow 2s ease-in-out infinite;
+    transition:transform .25s ease;
+  }
+  .epic-counter-num.bump{transform:scale(1.18);}
+  .epic-counter-label{
+    display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;
+    color:var(--text-muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.1em;
+  }
   .follow-card h3{font-family:'Bebas Neue',sans-serif;font-size:1.9rem;letter-spacing:.02em;margin-bottom:10px;}
   .follow-card p{color:var(--text-muted);font-size:.92rem;line-height:1.6;margin-bottom:22px;}
   .btn-google{
@@ -510,7 +542,14 @@
         <a href="#videos">TikTok</a>
         <a href="#contacto">Contacto</a>
       </div>
-      <a href="#contacto" class="nav-cta">Contactar</a>
+      <div class="nav-actions">
+        <a href="#seguir" id="nav-follow-btn" class="nav-follow-btn">
+          <span class="live-dot"></span>
+          <span id="nav-follower-count">--</span>
+          <span id="nav-follow-label">Seguir</span>
+        </a>
+        <a href="#contacto" class="nav-cta">Contactar</a>
+      </div>
     </nav>
   </div>
 </header>
@@ -599,6 +638,11 @@
   <div class="container">
     <div class="follow-card reveal">
       <div class="follow-icon">🔔</div>
+
+      <div class="epic-counter">
+        <span class="epic-counter-num" id="epic-follower-count">--</span>
+        <div class="epic-counter-label"><span class="live-dot"></span> personas siguiendo en directo</div>
+      </div>
 
       <div id="follow-signed-out">
         <h3>No te pierdas nada</h3>
@@ -948,7 +992,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-  import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBZ8_CjmlYQF34djxJocuQEYJvinPspLmY",
@@ -970,18 +1014,57 @@
   const inView = document.getElementById('follow-signed-in');
   const userPhoto = document.getElementById('follow-user-photo');
   const userName = document.getElementById('follow-user-name');
+  const navFollowBtn = document.getElementById('nav-follow-btn');
+  const navFollowLabel = document.getElementById('nav-follow-label');
+  const navFollowerCount = document.getElementById('nav-follower-count');
+  const epicFollowerCount = document.getElementById('epic-follower-count');
+
+  function bump(el) {
+    if (!el) return;
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+  }
+
+  function renderCount(n) {
+    const text = n.toLocaleString('es-ES');
+    if (navFollowerCount && navFollowerCount.textContent !== text) {
+      navFollowerCount.textContent = text;
+      bump(navFollowerCount);
+    }
+    if (epicFollowerCount && epicFollowerCount.textContent !== text) {
+      epicFollowerCount.textContent = text;
+      bump(epicFollowerCount);
+    }
+  }
+
+  // Contador de seguidores en tiempo real
+  onSnapshot(doc(db, 'stats', 'followers'), (snap) => {
+    const count = snap.exists() ? (snap.data().count || 0) : 0;
+    renderCount(count);
+  }, () => {
+    renderCount(0);
+  });
 
   signInBtn?.addEventListener('click', async () => {
     signInBtn.disabled = true;
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      await setDoc(doc(db, 'followers', user.uid), {
+      const followerRef = doc(db, 'followers', user.uid);
+      const existing = await getDoc(followerRef);
+      const isNewFollower = !existing.exists();
+
+      await setDoc(followerRef, {
         email: user.email,
         name: user.displayName,
         photo: user.photoURL,
         updatedAt: serverTimestamp(),
       }, { merge: true });
+
+      if (isNewFollower) {
+        await setDoc(doc(db, 'stats', 'followers'), { count: increment(1) }, { merge: true });
+      }
     } catch (err) {
       console.error(err);
       alert('No se pudo iniciar sesión. Inténtalo de nuevo.');
@@ -993,15 +1076,25 @@
   signOutBtn?.addEventListener('click', () => signOut(auth));
 
   onAuthStateChanged(auth, (user) => {
-    if (!outView || !inView) return;
-    if (user) {
-      outView.style.display = 'none';
-      inView.style.display = 'block';
-      if (userPhoto) userPhoto.src = user.photoURL || '';
-      if (userName) userName.textContent = user.displayName || user.email;
-    } else {
-      outView.style.display = 'block';
-      inView.style.display = 'none';
+    if (outView && inView) {
+      if (user) {
+        outView.style.display = 'none';
+        inView.style.display = 'block';
+        if (userPhoto) userPhoto.src = user.photoURL || '';
+        if (userName) userName.textContent = user.displayName || user.email;
+      } else {
+        outView.style.display = 'block';
+        inView.style.display = 'none';
+      }
+    }
+    if (navFollowBtn && navFollowLabel) {
+      if (user) {
+        navFollowBtn.classList.add('is-following');
+        navFollowLabel.textContent = 'Siguiendo ✓';
+      } else {
+        navFollowBtn.classList.remove('is-following');
+        navFollowLabel.textContent = 'Seguir';
+      }
     }
   });
 </script>
