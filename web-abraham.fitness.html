@@ -1067,7 +1067,7 @@
       }
     } catch (err) {
       console.error(err);
-      alert('No se pudo iniciar sesión. Inténtalo de nuevo.');
+      alert('No se pudo iniciar sesión.\nCódigo: ' + (err.code || 'desconocido') + '\n' + (err.message || ''));
     } finally {
       signInBtn.disabled = false;
     }
