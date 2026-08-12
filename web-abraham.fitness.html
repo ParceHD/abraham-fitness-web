@@ -521,6 +521,46 @@
   .booking-warning{color:var(--text-dim);font-size:.74rem;margin-top:16px;margin-bottom:0;}
   #booking-guest .btn-google{margin:0 auto;}
 
+  /* FORO */
+  .forum-section{padding:110px 0;position:relative;z-index:1;}
+  .forum-wrap{max-width:640px;margin:56px auto 0;}
+  #forum-guest{
+    text-align:center;
+    background:linear-gradient(135deg, var(--surface), var(--bg-alt));
+    border:1px solid var(--border);border-radius:24px;padding:40px 34px;
+  }
+  #forum-guest .btn-google{margin:0 auto;}
+  .forum-form{
+    background:var(--surface);border:1px solid var(--border);border-radius:20px;
+    padding:22px;margin-bottom:28px;
+  }
+  .forum-textarea{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;
+    color:var(--text);font-family:'Inter',sans-serif;font-size:.92rem;padding:14px;
+    resize:vertical;margin-bottom:14px;
+  }
+  .forum-textarea:focus{outline:none;border-color:var(--blue);}
+  .forum-posts{display:flex;flex-direction:column;gap:14px;}
+  .forum-post{
+    background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:18px 20px;
+  }
+  .forum-post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .forum-avatar{width:34px;height:34px;border-radius:50%;object-fit:cover;border:1px solid var(--border);}
+  .forum-author{display:block;font-weight:700;font-size:.85rem;color:var(--text);}
+  .forum-time{display:block;font-size:.72rem;color:var(--text-dim);}
+  .forum-text{color:var(--text-muted);font-size:.92rem;line-height:1.6;margin-bottom:14px;white-space:pre-wrap;}
+  .forum-like-btn{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);
+    padding:7px 16px;border-radius:999px;font-size:.82rem;font-weight:700;
+    cursor:pointer;transition:border-color .2s, transform .15s;
+  }
+  .forum-like-btn:hover{transform:translateY(-1px);}
+  .forum-like-btn.liked{border-color:var(--blue);color:var(--blue-light);}
+  .forum-like-btn .heart{transition:transform .2s;}
+  .forum-like-btn.liked .heart{transform:scale(1.15);}
+
   /* METRICAS */
   .metrics{padding:90px 0;background:linear-gradient(180deg, var(--bg-alt), var(--bg));position:relative;z-index:1;}
   .metrics-grid{
@@ -586,6 +626,7 @@
         <a href="#galeria">Galería</a>
         <a href="#videos">TikTok</a>
         <a href="#reserva">Reserva</a>
+        <a href="#foro">Foro</a>
         <a href="#contacto">Contacto</a>
       </div>
       <div class="nav-actions">
@@ -917,6 +958,39 @@
   </div>
 </section>
 
+<!-- FORO -->
+<section class="forum-section" id="foro">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="eyebrow" style="justify-content:center;">Comunidad</div>
+      <h2 class="section-title">Foro de dudas</h2>
+      <p class="section-sub" style="margin:0 auto;">Deja tus dudas de entrenamiento y nutrición. La comunidad vota las mejores con ❤️.</p>
+    </div>
+
+    <div class="forum-wrap reveal">
+
+      <div id="forum-guest">
+        <p class="booking-note">Inicia sesión con Google para ver y participar en el foro.</p>
+        <button id="forum-signin-btn" class="btn-google" type="button">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.09A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.26A12 12 0 0 0 0 12c0 1.94.46 3.77 1.26 5.37l4.01-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.26 6.63l4.01 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+          Iniciar sesión para entrar
+        </button>
+      </div>
+
+      <div id="forum-content" style="display:none;">
+        <form id="forum-form" class="forum-form">
+          <textarea id="forum-input" class="forum-textarea" placeholder="Escribe tu duda de entrenamiento o nutrición..." maxlength="480" rows="3"></textarea>
+          <button type="submit" class="btn btn-primary" id="forum-submit-btn">Publicar duda</button>
+        </form>
+
+        <div id="forum-posts" class="forum-posts"></div>
+        <p id="forum-empty" class="booking-note" style="display:none;">Todavía no hay dudas publicadas — ¡sé el primero!</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
 <!-- METRICAS -->
 <section class="metrics">
   <div class="container">
@@ -1102,7 +1176,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, updateDoc, addDoc, collection, query, orderBy, limit, onSnapshot, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBZ8_CjmlYQF34djxJocuQEYJvinPspLmY",
@@ -1136,6 +1210,15 @@
   const bookingLink = document.getElementById('booking-link');
   const bookingDoneMode = document.getElementById('booking-done-mode');
   const bookingModeLabels = { online: 'Online', presencial: 'Presencial' };
+
+  const forumSignInBtn = document.getElementById('forum-signin-btn');
+  const forumGuest = document.getElementById('forum-guest');
+  const forumContent = document.getElementById('forum-content');
+  const forumForm = document.getElementById('forum-form');
+  const forumInput = document.getElementById('forum-input');
+  const forumSubmitBtn = document.getElementById('forum-submit-btn');
+  const forumPostsEl = document.getElementById('forum-posts');
+  const forumEmpty = document.getElementById('forum-empty');
   function getSelectedBookingMode() {
     const activeBtn = document.querySelector('.toggle-btn.active');
     return activeBtn ? activeBtn.dataset.mode : 'online';
@@ -1211,8 +1294,147 @@
 
   signInBtn?.addEventListener('click', () => doSignIn(signInBtn));
   bookingSignInBtn?.addEventListener('click', () => doSignIn(bookingSignInBtn));
+  forumSignInBtn?.addEventListener('click', () => doSignIn(forumSignInBtn));
 
   signOutBtn?.addEventListener('click', () => signOut(auth));
+
+  function timeAgo(date) {
+    if (!date) return '';
+    const secs = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (secs < 60) return 'ahora mismo';
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `hace ${mins} min`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `hace ${hours} h`;
+    const days = Math.floor(hours / 24);
+    return `hace ${days} d`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  async function toggleLike(postId, likeBtn) {
+    const user = auth.currentUser;
+    if (!user) return;
+    likeBtn.disabled = true;
+    try {
+      const likeRef = doc(db, 'forum', postId, 'likes', user.uid);
+      const postRef = doc(db, 'forum', postId);
+      const existing = await getDoc(likeRef);
+      if (existing.exists()) {
+        await deleteDoc(likeRef);
+        await updateDoc(postRef, { likeCount: increment(-1) });
+      } else {
+        await setDoc(likeRef, { createdAt: serverTimestamp() });
+        await updateDoc(postRef, { likeCount: increment(1) });
+      }
+    } catch (err) {
+      console.error('Like error:', err);
+    } finally {
+      likeBtn.disabled = false;
+    }
+  }
+
+  function renderForumPosts(posts) {
+    if (!forumPostsEl) return;
+    if (posts.length === 0) {
+      forumPostsEl.innerHTML = '';
+      if (forumEmpty) forumEmpty.style.display = 'block';
+      return;
+    }
+    if (forumEmpty) forumEmpty.style.display = 'none';
+
+    forumPostsEl.innerHTML = posts.map((p) => `
+      <div class="forum-post">
+        <div class="forum-post-head">
+          <img class="forum-avatar" src="${p.photo || ''}" alt="">
+          <div>
+            <span class="forum-author">${escapeHtml(p.name || 'Anónimo')}</span>
+            <span class="forum-time">${timeAgo(p.createdAt)}</span>
+          </div>
+        </div>
+        <p class="forum-text">${escapeHtml(p.text)}</p>
+        <button class="forum-like-btn${p.likedByMe ? ' liked' : ''}" data-id="${p.id}" type="button">
+          <span class="heart">${p.likedByMe ? '❤️' : '🤍'}</span>
+          <span class="like-count">${p.likeCount || 0}</span>
+        </button>
+      </div>
+    `).join('');
+
+    forumPostsEl.querySelectorAll('.forum-like-btn').forEach((btn) => {
+      btn.addEventListener('click', () => toggleLike(btn.dataset.id, btn));
+    });
+  }
+
+  let forumUnsubscribe = null;
+  function startForumListener() {
+    if (forumUnsubscribe) return;
+    const q = query(collection(db, 'forum'), orderBy('createdAt', 'desc'), limit(50));
+    forumUnsubscribe = onSnapshot(q, async (snap) => {
+      const user = auth.currentUser;
+      const posts = [];
+      for (const docSnap of snap.docs) {
+        const data = docSnap.data();
+        let likedByMe = false;
+        if (user) {
+          try {
+            const likeSnap = await getDoc(doc(db, 'forum', docSnap.id, 'likes', user.uid));
+            likedByMe = likeSnap.exists();
+          } catch (e) {}
+        }
+        posts.push({
+          id: docSnap.id,
+          text: data.text,
+          name: data.name,
+          photo: data.photo,
+          likeCount: data.likeCount || 0,
+          createdAt: data.createdAt ? data.createdAt.toDate() : null,
+          likedByMe,
+        });
+      }
+      renderForumPosts(posts);
+    });
+  }
+
+  forumForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user || !forumInput) return;
+    const text = forumInput.value.trim();
+    if (!text) return;
+    forumSubmitBtn.disabled = true;
+    try {
+      await addDoc(collection(db, 'forum'), {
+        uid: user.uid,
+        name: user.displayName || 'Anónimo',
+        photo: user.photoURL || '',
+        text,
+        likeCount: 0,
+        createdAt: serverTimestamp(),
+      });
+      forumInput.value = '';
+    } catch (err) {
+      console.error('Forum post error:', err);
+      alert('No se pudo publicar la duda. Inténtalo de nuevo.');
+    } finally {
+      forumSubmitBtn.disabled = false;
+    }
+  });
+
+  function refreshForumView(user) {
+    if (!forumGuest || !forumContent) return;
+    if (user) {
+      forumGuest.style.display = 'none';
+      forumContent.style.display = 'block';
+      startForumListener();
+    } else {
+      forumGuest.style.display = 'block';
+      forumContent.style.display = 'none';
+    }
+  }
 
   bookingLink?.addEventListener('click', async () => {
     const user = auth.currentUser;
@@ -1279,6 +1501,7 @@
       }
     }
     refreshBookingView(user);
+    refreshForumView(user);
   });
 </script>
 
