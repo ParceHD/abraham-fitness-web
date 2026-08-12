@@ -518,6 +518,8 @@
   }
   .toggle-btn.active{background:var(--blue);color:#fff;}
   .booking-note{color:var(--text-muted);font-size:.9rem;margin-bottom:24px;min-height:1.5em;}
+  .booking-warning{color:var(--text-dim);font-size:.74rem;margin-top:16px;margin-bottom:0;}
+  #booking-guest .btn-google{margin:0 auto;}
 
   /* METRICAS */
   .metrics{padding:90px 0;background:linear-gradient(180deg, var(--bg-alt), var(--bg));position:relative;z-index:1;}
@@ -887,12 +889,30 @@
     </div>
 
     <div class="booking-card reveal">
-      <div class="booking-toggle">
-        <button class="toggle-btn active" data-mode="online" type="button">💻 Online</button>
-        <button class="toggle-btn" data-mode="presencial" type="button">📍 Presencial</button>
+
+      <div id="booking-guest">
+        <p class="booking-note">Inicia sesión con Google para reservar (así evitamos reservas duplicadas y huecos ocupados en falso).</p>
+        <button id="booking-signin-btn" class="btn-google" type="button">
+          <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3c-1.08.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.26v3.09A12 12 0 0 0 12 24z"/><path fill="#FBBC05" d="M5.27 14.28A7.2 7.2 0 0 1 4.89 12c0-.79.14-1.56.38-2.28V6.63H1.26A12 12 0 0 0 0 12c0 1.94.46 3.77 1.26 5.37l4.01-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.26 6.63l4.01 3.09C6.22 6.86 8.87 4.75 12 4.75z"/></svg>
+          Iniciar sesión para reservar
+        </button>
       </div>
-      <p class="booking-note" id="booking-note">Sesión por videollamada (Google Meet). El enlace se genera automáticamente al reservar.</p>
-      <a href="https://calendar.app.google/5LcCRFi5VvNFDUHE6" target="_blank" class="btn btn-primary btn-lg">Ver horarios y reservar</a>
+
+      <div id="booking-available" style="display:none;">
+        <div class="booking-toggle">
+          <button class="toggle-btn active" data-mode="online" type="button">💻 Online</button>
+          <button class="toggle-btn" data-mode="presencial" type="button">📍 Presencial</button>
+        </div>
+        <p class="booking-note" id="booking-note">Sesión por videollamada (Google Meet). El enlace se genera automáticamente al reservar.</p>
+        <a href="https://calendar.app.google/5LcCRFi5VvNFDUHE6" target="_blank" id="booking-link" class="btn btn-primary btn-lg">Ver horarios y reservar</a>
+        <p class="booking-warning">Solo puedes reservar una vez con esta cuenta — al pulsar, quedará marcada como usada.</p>
+      </div>
+
+      <div id="booking-done" style="display:none;">
+        <p class="follow-success">✓ Ya tienes una sesión reservada</p>
+        <p class="booking-note">Modalidad elegida: <b id="booking-done-mode">—</b>. Si necesitas cambiarla o cancelarla, escríbenos por Instagram.</p>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1109,6 +1129,18 @@
   const navFollowerCount = document.getElementById('nav-follower-count');
   const epicFollowerCount = document.getElementById('epic-follower-count');
 
+  const bookingSignInBtn = document.getElementById('booking-signin-btn');
+  const bookingGuest = document.getElementById('booking-guest');
+  const bookingAvailable = document.getElementById('booking-available');
+  const bookingDone = document.getElementById('booking-done');
+  const bookingLink = document.getElementById('booking-link');
+  const bookingDoneMode = document.getElementById('booking-done-mode');
+  const bookingModeLabels = { online: 'Online', presencial: 'Presencial' };
+  function getSelectedBookingMode() {
+    const activeBtn = document.querySelector('.toggle-btn.active');
+    return activeBtn ? activeBtn.dataset.mode : 'online';
+  }
+
   function bump(el) {
     if (!el) return;
     el.classList.remove('bump');
@@ -1143,8 +1175,8 @@
     renderCount(0);
   });
 
-  signInBtn?.addEventListener('click', async () => {
-    signInBtn.disabled = true;
+  async function doSignIn(triggerBtn) {
+    if (triggerBtn) triggerBtn.disabled = true;
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -1173,11 +1205,57 @@
       console.error(err);
       alert('No se pudo iniciar sesión.\nCódigo: ' + (err.code || 'desconocido') + '\n' + (err.message || ''));
     } finally {
-      signInBtn.disabled = false;
+      if (triggerBtn) triggerBtn.disabled = false;
+    }
+  }
+
+  signInBtn?.addEventListener('click', () => doSignIn(signInBtn));
+  bookingSignInBtn?.addEventListener('click', () => doSignIn(bookingSignInBtn));
+
+  signOutBtn?.addEventListener('click', () => signOut(auth));
+
+  bookingLink?.addEventListener('click', async () => {
+    const user = auth.currentUser;
+    if (!user) return;
+    const mode = getSelectedBookingMode();
+    try {
+      await setDoc(doc(db, 'bookings', user.uid), {
+        email: user.email,
+        name: user.displayName,
+        mode,
+        bookedAt: serverTimestamp(),
+      });
+      if (bookingAvailable) bookingAvailable.style.display = 'none';
+      if (bookingDone) bookingDone.style.display = 'block';
+      if (bookingDoneMode) bookingDoneMode.textContent = bookingModeLabels[mode] || mode;
+    } catch (err) {
+      console.error('Booking error:', err);
     }
   });
 
-  signOutBtn?.addEventListener('click', () => signOut(auth));
+  async function refreshBookingView(user) {
+    if (!bookingGuest || !bookingAvailable || !bookingDone) return;
+    if (!user) {
+      bookingGuest.style.display = 'block';
+      bookingAvailable.style.display = 'none';
+      bookingDone.style.display = 'none';
+      return;
+    }
+    try {
+      const existing = await getDoc(doc(db, 'bookings', user.uid));
+      bookingGuest.style.display = 'none';
+      if (existing.exists()) {
+        bookingAvailable.style.display = 'none';
+        bookingDone.style.display = 'block';
+        if (bookingDoneMode) bookingDoneMode.textContent = bookingModeLabels[existing.data().mode] || existing.data().mode;
+      } else {
+        bookingAvailable.style.display = 'block';
+        bookingDone.style.display = 'none';
+      }
+    } catch (err) {
+      console.error('Booking check error:', err);
+    }
+  }
 
   onAuthStateChanged(auth, (user) => {
     if (outView && inView) {
@@ -1200,6 +1278,7 @@
         navFollowLabel.textContent = 'Seguir';
       }
     }
+    refreshBookingView(user);
   });
 </script>
 
