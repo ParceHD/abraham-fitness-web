@@ -559,6 +559,36 @@
   .forum-like-btn:hover{transform:translateY(-1px);}
   .forum-like-btn.liked{border-color:var(--blue);color:var(--blue-light);}
   .forum-like-btn .heart{transition:transform .2s;}
+  .forum-actions{display:flex;align-items:center;gap:10px;}
+  .forum-replies-toggle{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);
+    padding:7px 16px;border-radius:999px;font-size:.82rem;font-weight:700;
+    cursor:pointer;transition:border-color .2s, transform .15s;
+  }
+  .forum-replies-toggle:hover{transform:translateY(-1px);border-color:var(--blue);}
+  .replies-panel{
+    margin-top:16px;padding-top:16px;border-top:1px solid var(--border);
+  }
+  .replies-list{display:flex;flex-direction:column;gap:12px;margin-bottom:14px;}
+  .reply-item{display:flex;gap:9px;}
+  .forum-avatar.small{width:26px;height:26px;flex-shrink:0;}
+  .reply-body{flex:1;}
+  .reply-text{color:var(--text-muted);font-size:.86rem;line-height:1.5;margin-top:2px;white-space:pre-wrap;}
+  .reply-empty{color:var(--text-dim);font-size:.82rem;margin-bottom:14px;}
+  .reply-form{display:flex;flex-direction:column;gap:8px;}
+  .reply-input{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;
+    color:var(--text);font-family:'Inter',sans-serif;font-size:.86rem;padding:10px 12px;
+    resize:vertical;
+  }
+  .reply-input:focus{outline:none;border-color:var(--blue);}
+  .btn-reply-submit{
+    align-self:flex-end;background:var(--blue);color:#fff;border:none;
+    padding:8px 18px;border-radius:10px;font-size:.8rem;font-weight:700;
+    cursor:pointer;font-family:'Inter',sans-serif;transition:transform .2s;
+  }
+  .btn-reply-submit:hover{transform:translateY(-1px);}
   .forum-like-btn.liked .heart{transform:scale(1.15);}
 
   /* METRICAS */
@@ -1338,6 +1368,78 @@
     }
   }
 
+  const expandedPosts = new Set();
+  const replyUnsubscribers = new Map();
+
+  async function submitReply(form) {
+    const user = auth.currentUser;
+    if (!user) return;
+    const postId = form.dataset.postId;
+    const input = form.querySelector('.reply-input');
+    const text = input.value.trim();
+    if (!text) return;
+    const btn = form.querySelector('.btn-reply-submit');
+    if (btn) btn.disabled = true;
+    try {
+      await addDoc(collection(db, 'forum', postId, 'replies'), {
+        uid: user.uid,
+        name: user.displayName || 'Anónimo',
+        photo: user.photoURL || '',
+        text,
+        createdAt: serverTimestamp(),
+      });
+      await updateDoc(doc(db, 'forum', postId), { replyCount: increment(1) });
+      input.value = '';
+    } catch (err) {
+      console.error('Reply error:', err);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function attachReplyListener(postId) {
+    const existing = replyUnsubscribers.get(postId);
+    if (existing) existing();
+    const listEl = document.getElementById(`replies-list-${postId}`);
+    if (!listEl) return;
+    const q = query(collection(db, 'forum', postId, 'replies'), orderBy('createdAt', 'asc'), limit(100));
+    const unsub = onSnapshot(q, (snap) => {
+      if (snap.empty) {
+        listEl.innerHTML = '<p class="reply-empty">Sé el primero en responder.</p>';
+        return;
+      }
+      listEl.innerHTML = snap.docs.map((d) => {
+        const r = d.data();
+        const created = r.createdAt ? r.createdAt.toDate() : null;
+        return `
+          <div class="reply-item">
+            <img class="forum-avatar small" src="${r.photo || ''}" alt="">
+            <div class="reply-body">
+              <span class="forum-author">${escapeHtml(r.name || 'Anónimo')}</span>
+              <span class="forum-time">${timeAgo(created)}</span>
+              <p class="reply-text">${escapeHtml(r.text)}</p>
+            </div>
+          </div>`;
+      }).join('');
+    });
+    replyUnsubscribers.set(postId, unsub);
+  }
+
+  function toggleReplies(postId, btn) {
+    const panel = document.getElementById(`replies-panel-${postId}`);
+    if (!panel) return;
+    if (expandedPosts.has(postId)) {
+      expandedPosts.delete(postId);
+      panel.style.display = 'none';
+      const unsub = replyUnsubscribers.get(postId);
+      if (unsub) { unsub(); replyUnsubscribers.delete(postId); }
+    } else {
+      expandedPosts.add(postId);
+      panel.style.display = 'block';
+      attachReplyListener(postId);
+    }
+  }
+
   function renderForumPosts(posts) {
     if (!forumPostsEl) return;
     if (posts.length === 0) {
@@ -1357,16 +1459,26 @@
           </div>
         </div>
         <p class="forum-text">${escapeHtml(p.text)}</p>
-        <button class="forum-like-btn${p.likedByMe ? ' liked' : ''}" data-id="${p.id}" type="button">
-          <span class="heart">${p.likedByMe ? '❤️' : '🤍'}</span>
-          <span class="like-count">${p.likeCount || 0}</span>
-        </button>
+        <div class="forum-actions">
+          <button class="forum-like-btn${p.likedByMe ? ' liked' : ''}" data-id="${p.id}" type="button">
+            <span class="heart">${p.likedByMe ? '❤️' : '🤍'}</span>
+            <span class="like-count">${p.likeCount || 0}</span>
+          </button>
+          <button class="forum-replies-toggle" data-id="${p.id}" type="button">
+            💬 Respuestas (${p.replyCount || 0})
+          </button>
+        </div>
+        <div class="replies-panel" id="replies-panel-${p.id}" style="display:${expandedPosts.has(p.id) ? 'block' : 'none'};">
+          <div class="replies-list" id="replies-list-${p.id}"></div>
+          <form class="reply-form" data-post-id="${p.id}">
+            <textarea class="reply-input" placeholder="Escribe una respuesta..." maxlength="480" rows="2"></textarea>
+            <button type="submit" class="btn-reply-submit">Responder</button>
+          </form>
+        </div>
       </div>
     `).join('');
 
-    forumPostsEl.querySelectorAll('.forum-like-btn').forEach((btn) => {
-      btn.addEventListener('click', () => toggleLike(btn.dataset.id, btn));
-    });
+    expandedPosts.forEach((postId) => attachReplyListener(postId));
   }
 
   let forumUnsubscribe = null;
@@ -1391,6 +1503,7 @@
           name: data.name,
           photo: data.photo,
           likeCount: data.likeCount || 0,
+          replyCount: data.replyCount || 0,
           createdAt: data.createdAt ? data.createdAt.toDate() : null,
           likedByMe,
         });
@@ -1398,6 +1511,20 @@
       renderForumPosts(posts);
     });
   }
+
+  forumPostsEl?.addEventListener('click', (e) => {
+    const likeBtn = e.target.closest('.forum-like-btn');
+    if (likeBtn) { toggleLike(likeBtn.dataset.id, likeBtn); return; }
+    const toggleBtn = e.target.closest('.forum-replies-toggle');
+    if (toggleBtn) { toggleReplies(toggleBtn.dataset.id, toggleBtn); return; }
+  });
+
+  forumPostsEl?.addEventListener('submit', (e) => {
+    const form = e.target.closest('.reply-form');
+    if (!form) return;
+    e.preventDefault();
+    submitReply(form);
+  });
 
   forumForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1413,6 +1540,7 @@
         photo: user.photoURL || '',
         text,
         likeCount: 0,
+        replyCount: 0,
         createdAt: serverTimestamp(),
       });
       forumInput.value = '';
