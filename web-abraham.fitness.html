@@ -499,6 +499,26 @@
     .videos-grid{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto;}
   }
 
+  /* RESERVA SESION */
+  .booking{padding:110px 0;position:relative;z-index:1;}
+  .booking-card{
+    max-width:560px;margin:56px auto 0;text-align:center;
+    background:linear-gradient(135deg, var(--surface), var(--bg-alt));
+    border:1px solid var(--border);border-radius:24px;
+    padding:40px 34px;
+  }
+  .booking-toggle{
+    display:inline-flex;background:var(--bg);border:1px solid var(--border);
+    border-radius:999px;padding:4px;margin-bottom:20px;
+  }
+  .toggle-btn{
+    border:none;background:transparent;color:var(--text-muted);
+    padding:10px 22px;border-radius:999px;font-size:.85rem;font-weight:700;
+    cursor:pointer;transition:background .2s, color .2s;font-family:'Inter',sans-serif;
+  }
+  .toggle-btn.active{background:var(--blue);color:#fff;}
+  .booking-note{color:var(--text-muted);font-size:.9rem;margin-bottom:24px;min-height:1.5em;}
+
   /* METRICAS */
   .metrics{padding:90px 0;background:linear-gradient(180deg, var(--bg-alt), var(--bg));position:relative;z-index:1;}
   .metrics-grid{
@@ -563,6 +583,7 @@
         <a href="#colabora">Colabora</a>
         <a href="#galeria">Galería</a>
         <a href="#videos">TikTok</a>
+        <a href="#reserva">Reserva</a>
         <a href="#contacto">Contacto</a>
       </div>
       <div class="nav-actions">
@@ -856,6 +877,26 @@
   </div>
 </section>
 
+<!-- RESERVA SESION -->
+<section class="booking" id="reserva">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="eyebrow" style="justify-content:center;">Entrena conmigo</div>
+      <h2 class="section-title">Reserva tu sesión</h2>
+      <p class="section-sub" style="margin:0 auto;">Sesiones de 45 minutos, disponibles de lunes a viernes de 9:00 a 15:00.</p>
+    </div>
+
+    <div class="booking-card reveal">
+      <div class="booking-toggle">
+        <button class="toggle-btn active" data-mode="online" type="button">💻 Online</button>
+        <button class="toggle-btn" data-mode="presencial" type="button">📍 Presencial</button>
+      </div>
+      <p class="booking-note" id="booking-note">Sesión por videollamada (Google Meet). El enlace se genera automáticamente al reservar.</p>
+      <a href="https://calendar.app.google/5LcCRFi5VvNFDUHE6" target="_blank" class="btn btn-primary btn-lg">Ver horarios y reservar</a>
+    </div>
+  </div>
+</section>
+
 <!-- METRICAS -->
 <section class="metrics">
   <div class="container">
@@ -965,6 +1006,21 @@
     });
   }, { threshold: 0.5 });
   counters.forEach(el => countIo.observe(el));
+
+  // Toggle Online / Presencial en la reserva de sesión
+  const toggleBtns = document.querySelectorAll('.toggle-btn');
+  const bookingNote = document.getElementById('booking-note');
+  const bookingNotes = {
+    online: 'Sesión por videollamada (Google Meet). El enlace se genera automáticamente al reservar.',
+    presencial: 'Sesión presencial. La ubicación exacta se confirma por email al reservar.',
+  };
+  toggleBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      toggleBtns.forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (bookingNote) bookingNote.textContent = bookingNotes[btn.dataset.mode] || '';
+    });
+  });
 
   // Parallax on hero-below
   const heroBelow = document.querySelector('.hero-below');
